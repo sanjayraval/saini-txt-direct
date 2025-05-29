@@ -20,7 +20,7 @@ from logs import logging
 from bs4 import BeautifulSoup
 import saini as helper
 from utils import progress_bar
-from vars import API_ID, API_HASH, BOT_TOKEN, OWNER, CREDIT
+from vars import API_ID, API_HASH, BOT_TOKEN, OWNER, CREDIT, AUTH_USERS
 from aiohttp import ClientSession
 from subprocess import getstatusoutput
 from pytube import YouTube
@@ -47,10 +47,6 @@ bot = Client(
     bot_token=BOT_TOKEN
 )
 
-AUTH_USER = os.environ.get('AUTH_USERS', '5680454765').split(',')
-AUTH_USERS = [int(user_id) for user_id in AUTH_USER]
-if int(OWNER) not in AUTH_USERS:
-    AUTH_USERS.append(int(OWNER))
 cookies_file_path = os.getenv("cookies_file_path", "youtube_cookies.txt")
 api_url = "http://master-api-v3.vercel.app/"
 api_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNzkxOTMzNDE5NSIsInRnX3VzZXJuYW1lIjoi4p61IFtvZmZsaW5lXSIsImlhdCI6MTczODY5MjA3N30.SXzZ1MZcvMp5sGESj0hBKSghhxJ3k1GTWoBUbivUe1I"
@@ -61,10 +57,6 @@ photoyt = 'https://tinypic.host/images/2025/03/18/YouTube-Logo.wine.png' #https:
 photocp = 'https://tinypic.host/images/2025/03/28/IMG_20250328_133126.jpg'
 photozip = 'https://envs.sh/cD_.jpg'
 
-async def show_random_emojis(message):
-    emojis = ['🐼', '🐶', '🐅', '⚡️', '🚀', '✨', '💥', '☠️', '🥂', '🍾', '📬', '👻', '👀', '🌹', '💀', '🐇', '⏳', '🔮', '🦔', '📖', '🦁', '🐱', '🐻‍❄️', '☁️', '🚹', '🚺', '🐠', '🦋']
-    emoji_message = await message.reply_text(' '.join(random.choices(emojis, k=1)))
-    return emoji_message
 
 # Inline keyboard for start command
 BUTTONSCONTACT = InlineKeyboardMarkup([[InlineKeyboardButton(text="📞 Contact", url="https://t.me/saini_contact_bot")]])
@@ -282,21 +274,114 @@ async def getcookies_handler(client: Client, m: Message):
 
 @bot.on_message(filters.command(["stop"]) )
 async def restart_handler(_, m):
-    await m.reply_text("**🚦STOPPED🚦**", True)
-    os.execl(sys.executable, sys.executable, *sys.argv)
+    if m.chat.id not in AUTH_USERS:
+        print(f"User ID not in AUTH_USERS", m.chat.id)
+        await bot.send_message(
+            m.chat.id, 
+            f"<blockquote>__**Oopss! You are not a Premium member**__\n"
+            f"__**PLEASE /upgrade YOUR PLAN**__\n"
+            f"__**Send me your user id for authorization**__\n"
+            f"__**Your User id** __- `{m.chat.id}`</blockquote>\n\n"
+        )
+    else:
+        await m.reply_text("🚦**STOPPED**🚦", True)
+        os.execl(sys.executable, sys.executable, *sys.argv)
         
-@bot.on_message(filters.command(["start"]))
-async def start_command(bot: Client, message: Message):
-    random_image_url = random.choice(image_urls)
-    caption = (
-        f"𝐇𝐞𝐥𝐥𝐨 𝐃𝐞𝐚𝐫 👋!\n\n➠ 𝐈 𝐚𝐦 𝐚 𝐓𝐞𝐱𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐞𝐫 𝐁𝐨𝐭\n\n➠ Can Extract Videos & PDFs From Your Text File and Upload to Telegram!\n\n➠ For Guide Use Command /help 📖\n\n➠ 𝐌𝐚𝐝𝐞 𝐁𝐲 : {CREDIT} 🦁"
+
+@bot.on_message(filters.command("start"))
+async def start(bot, m: Message):
+    user = await bot.get_me()
+    mention = user.mention
+    start_message = await bot.send_message(
+        m.chat.id,
+        f"🌟 Welcome {m.from_user.first_name}! 🌟\n\n"
     )
-    await bot.send_photo(
-        chat_id=message.chat.id,
-        photo=random_image_url,
-        caption=caption,
-        reply_markup=keyboard
+
+    await asyncio.sleep(1)
+    await start_message.edit_text(
+        f"🌟 Welcome {m.from_user.first_name}! 🌟\n\n" +
+        f"Initializing Uploader bot... 🤖\n\n"
+        f"Progress: [⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️] 0%\n\n"
     )
+
+    await asyncio.sleep(1)
+    await start_message.edit_text(
+        f"🌟 Welcome {m.from_user.first_name}! 🌟\n\n" +
+        f"Loading features... ⏳\n\n"
+        f"Progress: [🟥🟥🟥⬜️⬜️⬜️⬜️⬜️⬜️⬜️] 25%\n\n"
+    )
+    
+    await asyncio.sleep(1)
+    await start_message.edit_text(
+        f"🌟 Welcome {m.from_user.first_name}! 🌟\n\n" +
+        f"This may take a moment, sit back and relax! 😊\n\n"
+        f"Progress: [🟧🟧🟧🟧🟧⬜️⬜️⬜️⬜️⬜️] 50%\n\n"
+    )
+
+    await asyncio.sleep(1)
+    await start_message.edit_text(
+        f"🌟 Welcome {m.from_user.first_name}! 🌟\n\n" +
+        f"Checking subscription status... 🔍\n\n"
+        f"Progress: [🟨🟨🟨🟨🟨🟨🟨🟨⬜️⬜️] 75%\n\n"
+    )
+
+    await asyncio.sleep(1)
+    if m.chat.id in AUTH_USERS:
+        await start_message.edit_text(
+            f"🌟 Welcome {m.from_user.first_name}! 🌟\n\n" +
+            f"Great! You are a premium member!\n"
+            f"Use Command : /help to get started 🌟\n\n"
+            f"If you face any problem contact -  [𝙎𝘼𝙄𝙉𝙄 𝘽𝙊𝙏𝙎](https://t.me/saini_contact_bot)\n", disable_web_page_preview=True, reply_markup=BUTTONSCONTACT
+        )
+    else:
+        await asyncio.sleep(2)
+        await start_message.edit_text(
+           f" 🎉 Welcome {m.from_user.first_name} to DRM Bot! 🎉\n\n"
+           f"You can have access to download all Non-DRM+AES Encrypted URLs 🔐 including\n\n"
+           f"Use Command : /help to get started 🌟\n\n"
+           f"<blockquote>• 📚 Appx Zip+Encrypted Url\n"
+           f"• 🎓 Classplus DRM+ NDRM\n"
+           f"• 🧑‍🏫 PhysicsWallah DRM\n"
+           f"• 📚 CareerWill + PDF\n"
+           f"• 🎓 Khan GS\n"
+           f"• 🎓 Study Iq DRM\n"
+           f"• 🚀 APPX + APPX Enc PDF\n"
+           f"• 🎓 Vimeo Protection\n"
+           f"• 🎓 Brightcove Protection\n"
+           f"• 🎓 Visionias Protection\n"
+           f"• 🎓 Zoom Video\n"
+           f"• 🎓 Utkarsh Protection(Video + PDF)\n"
+           f"• 🎓 All Non DRM+AES Encrypted URLs\n"
+           f"• 🎓 MPD URLs if the key is known (e.g., Mpd_url?key=key XX:XX)</blockquote>\n\n"
+           f"🚀 You are not subscribed to any plan yet!\n\n"
+           f"<blockquote>💵 Monthly Plan: free</blockquote>\n\n"
+           f"If you want to buy membership of the bot, feel free to contact the Bot Admin.\n", disable_web_page_preview=True, reply_markup=keyboard
+    )
+
+@bot.on_message(filters.command(["upgrade"]))
+async def id_command(client, message: Message):
+    chat_id = message.chat.id
+    await message.reply_text(
+        f" 🎉 Welcome {message.from_user.first_name} to DRM Bot! 🎉\n\n"
+           f"You can have access to download all Non-DRM+AES Encrypted URLs 🔐 including\n\n"
+           f"Use Command : /help to get started 🌟\n\n"
+           f"• 📚 Appx Zip+Encrypted Url\n"
+           f"• 🎓 Classplus DRM+ NDRM\n"
+           f"• 🧑‍🏫 PhysicsWallah DRM\n"
+           f"• 📚 CareerWill + PDF\n"
+           f"• 🎓 Khan GS\n"
+           f"• 🎓 Study Iq DRM\n"
+           f"• 🚀 APPX + APPX Enc PDF\n"
+           f"• 🎓 Vimeo Protection\n"
+           f"• 🎓 Brightcove Protection\n"
+           f"• 🎓 Visionias Protection\n"
+           f"• 🎓 Zoom Video\n"
+           f"• 🎓 Utkarsh Protection(Video + PDF)\n"
+           f"• 🎓 All Non DRM+AES Encrypted URLs\n"
+           f"• 🎓 MPD URLs if the key is known (e.g., Mpd_url?key=key XX:XX)\n\n"
+           f"<blockquote>💵 Monthly Plan: free</blockquote>\n\n"
+           f"If you want to buy membership of the bot, feel free to contact the Bot Admin.\n", disable_web_page_preview=True, reply_markup=BUTTONSCONTACT
+    )  
 
 @bot.on_message(filters.command(["id"]))
 async def id_command(client, message: Message):
@@ -308,7 +393,7 @@ async def info(bot: Client, update: Message):
     
     text = (
         f"╭────────────────╮\n"
-        f"│✨ **__Your Telegram Info__**✨ \n"
+        f"│✨ **Your Telegram Info**✨ \n"
         f"├────────────────\n"
         f"├🔹**Name :** `{update.from_user.first_name} {update.from_user.last_name if update.from_user.last_name else 'None'}`\n"
         f"├🔹**User ID :** @{update.from_user.username}\n"
@@ -369,7 +454,7 @@ async def send_logs(client: Client, m: Message):  # Correct parameter name
 
 @bot.on_message(filters.command(["drm"]) )
 async def txt_handler(bot: Client, m: Message):  
-    editable = await m.reply_text(f"__Hii, I am drm Downloader Bot__\n\n<i>Send Me Your txt file or text which enclude Name with url...\nE.g: Name: Link</i>")
+    editable = await m.reply_text(f"__Hii, I am drm Downloader Bot__\n\n<i>Send Me Your txt file which enclude Name with url...\nE.g: Name: Link</i>")
     input: Message = await bot.listen(editable.chat.id)
     x = await input.download()
     await input.delete(True)
@@ -404,7 +489,7 @@ async def txt_handler(bot: Client, m: Message):
     await editable.edit(f"Total 🔗 links found are {len(links)}\nSend From where you want to download.initial is 1")
     if m.chat.id not in AUTH_USERS:
         print(f"User ID not in AUTH_USERS", m.chat.id)
-        await bot.send_message(m.chat.id, f"__Oopss! You are not a Premium member __\n__PLEASE UPGRADE YOUR PLAN__\n__Send me your user id for authorization__\n__Your User id__ - `{m.chat.id}`\n")
+        await bot.send_message(m.chat.id, f"__Oopss! You are not a Premium member __\n__PLEASE /upgrade YOUR PLAN__\n__Send me your user id for authorization__\n__Your User id__ - `{m.chat.id}`\n")
         return
     input0: Message = await bot.listen(editable.chat.id)
     raw_text = input0.text
@@ -568,12 +653,12 @@ async def txt_handler(bot: Client, m: Message):
                 cmd = f'yt-dlp -f "{ytf}" "{url}" -o "{name}.mp4"'
 
             try:
-                cc = f'[🎥]Vid Id : [{str(count).zfill(3)}]({link0})\n**Video Title :** `{name1} [{res}p] .mkv`\n<pre><code>**Batch Name :** {b_name}</code></pre>\n\n**Extracted by➤**`{CR}`\n'
-                cc1 = f'[📕]Pdf Id : [{str(count).zfill(3)}]({link0})\n**File Title :** `{name1} .pdf`\n<pre><code>**Batch Name :** {b_name}</code></pre>\n\n**Extracted by➤**`{CR}`\n'
-                cczip = f'[📁]Zip Id : [{str(count).zfill(3)}]({link0})\n**Zip Title :** `{name1} .zip`\n<pre><code>**Batch Name :** {b_name}</code></pre>\n\n**Extracted by➤**`{CR}`\n' 
-                ccimg = f'[🖼️]Img Id : [{str(count).zfill(3)}]({link0})\n**Img Title :** `{name1} .jpg`\n<pre><code>**Batch Name :** {b_name}</code></pre>\n\n**Extracted by➤**`{CR}`\n'
-                ccm = f'[🎵]Audio Id : [{str(count).zfill(3)}]({link0})\n**Audio Title :** `{name1} .mp3`\n<pre><code>**Batch Name :** {b_name}</code></pre>\n\n**Extracted by➤**`{CR}`\n'
-                cchtml = f'[🌐]Html Id : [{str(count).zfill(3)}]({link0})\n**Html Title :** `{name1} .html`\n<pre><code>**Batch Name :** {b_name}</code></pre>\n\n**Extracted by➤**`{CR}`\n'
+                cc = f'[🎥]Vid Id : {str(count).zfill(3)}\n**Video Title :** `{name1} [{res}p] .mkv`\n<pre><code>**Batch Name :** {b_name}</code></pre>\n\n**Extracted by➤**`{CR}`\n'
+                cc1 = f'[📕]Pdf Id : {str(count).zfill(3)}\n**File Title :** `{name1} .pdf`\n<pre><code>**Batch Name :** {b_name}</code></pre>\n\n**Extracted by➤**`{CR}`\n'
+                cczip = f'[📁]Zip Id : {str(count).zfill(3)}\n**Zip Title :** `{name1} .zip`\n<pre><code>**Batch Name :** {b_name}</code></pre>\n\n**Extracted by➤**`{CR}`\n' 
+                ccimg = f'[🖼️]Img Id : {str(count).zfill(3)}\n**Img Title :** `{name1} .jpg`\n<pre><code>**Batch Name :** {b_name}</code></pre>\n\n**Extracted by➤**`{CR}`\n'
+                ccm = f'[🎵]Audio Id : {str(count).zfill(3)}\n**Audio Title :** `{name1} .mp3`\n<pre><code>**Batch Name :** {b_name}</code></pre>\n\n**Extracted by➤**`{CR}`\n'
+                cchtml = f'[🌐]Html Id : {str(count).zfill(3)}\n**Html Title :** `{name1} .html`\n<pre><code>**Batch Name :** {b_name}</code></pre>\n\n**Extracted by➤**`{CR}`\n'
                   
                 if "drive" in url:
                     try:
